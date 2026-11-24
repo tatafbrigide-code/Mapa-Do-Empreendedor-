@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapa do Empreendedor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: cabeçalho fixo com 4 telas por hash; abertura em painel verde-petróleo com ilustração de quadras e uma lacuna em âmbar; mapa cartográfico com ruas e avenidas; análise em linhas comparando oferta e necessidade. */
+:root{
+  --bg:#EEF3F2; --surface:#FFFFFF; --surface-2:#F3F7F6; --ink:#13292C; --muted:#4F6568; --line:#C9D6D5; --dot:#D3DFDE;
+  --accent:#0E6A6D; --accent-ink:#FFFFFF;
+  --signal:#E0A21B; --signal-ink:#2B1E00; --signal-soft:#F8E9C3;
+  --hero-bg:#0C3F43; --hero-ink:#F2F8F7; --hero-muted:#AFCDCD; --hero-blk:#15575B; --hero-park:#23735A;
+  --map-bg:#DCE7E6; --b-fill:#F8FBFA; --b-line:#7FA3A3; --park:#C3DCC6; --street:#E3ECEB; --street-main:#CFDFDD;
+  --shadow:0 1px 2px rgba(19,41,44,.06),0 6px 18px rgba(19,41,44,.07);
+  --font-display:'Bricolage Grotesque','Avenir Next','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1819; --surface:#142326; --surface-2:#192C30; --ink:#E4EEEE; --muted:#9DB3B5; --line:#2A4244; --dot:#162A2C;
+    --accent:#52C4C6; --accent-ink:#06282A;
+    --signal:#F0B93F; --signal-ink:#2B1E00; --signal-soft:#3A2F10;
+    --hero-bg:#0F3A3D; --hero-ink:#EAF4F3; --hero-muted:#9FBDBD; --hero-blk:#175156; --hero-park:#1F6A52;
+    --map-bg:#0F2124; --b-fill:#17302F; --b-line:#3E6D6D; --park:#1D3A2A; --street:#1F3B3B; --street-main:#2A4847;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1819; --surface:#142326; --surface-2:#192C30; --ink:#E4EEEE; --muted:#9DB3B5; --line:#2A4244; --dot:#162A2C;
+  --accent:#52C4C6; --accent-ink:#06282A;
+  --signal:#F0B93F; --signal-ink:#2B1E00; --signal-soft:#3A2F10;
+  --hero-bg:#0F3A3D; --hero-ink:#EAF4F3; --hero-muted:#9FBDBD; --hero-blk:#175156; --hero-park:#1F6A52;
+  --map-bg:#0F2124; --b-fill:#17302F; --b-line:#3E6D6D; --park:#1D3A2A; --street:#1F3B3B; --street-main:#2A4847;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background-color:var(--bg);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.2px);background-size:26px 26px;color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+h1,h2,h3{font-family:var(--font-display);line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.015em}
+h1{font-size:clamp(2.1rem,6.4vw,3.6rem);font-weight:800}
+h2{font-size:clamp(1.55rem,4vw,2.2rem);font-weight:700}
+h3{font-size:1.15rem;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+.wrap{width:100%;max-width:1120px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.eyebrow::before{content:"";width:20px;height:3px;border-radius:2px;background:var(--signal)}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 24px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:var(--font-display);font-weight:800;font-size:1.2rem;letter-spacing:-.01em}
+.brand svg{flex:none}
+.nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav a{padding:8px 14px;border-radius:999px;text-decoration:none;color:var(--muted);font-weight:500;font-size:.95rem}
+.nav a:hover{background:var(--surface-2);color:var(--ink)}
+.nav a[aria-current="page"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.demo{background:var(--signal-soft);color:var(--ink);border-bottom:1px solid var(--signal);font-size:.88rem}
+.demo .wrap{padding-block:8px}
+
+main{padding-block:28px 64px}
+section[hidden]{display:none}
+.screen{display:flex;flex-direction:column;gap:30px}
+.head{display:flex;flex-direction:column;gap:10px}
+.lead{color:var(--muted);max-width:62ch}
+
+/* buttons / controls */
+.btn{font:inherit;font-weight:600;border:0;border-radius:12px;padding:13px 22px;background:var(--accent);color:var(--accent-ink);cursor:pointer;text-decoration:none;display:inline-block;box-shadow:var(--shadow);transition:transform .15s,filter .15s}
+.btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.link-btn{font:inherit;font-size:.88rem;font-weight:600;background:none;border:0;color:var(--accent);cursor:pointer;padding:4px 0;text-decoration:underline}
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;box-shadow:var(--shadow)}
+.seg button{font:inherit;font-size:.92rem;font-weight:500;border:0;background:transparent;color:var(--muted);padding:8px 16px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+label.fld{display:flex;flex-direction:column;gap:6px;font-size:.82rem;font-weight:600;color:var(--muted)}
+select{font:inherit;font-size:1rem;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px;width:100%}
+
+/* home */
+.hero-panel{background:var(--hero-bg);color:var(--hero-ink);border-radius:24px;padding:clamp(22px,5vw,52px);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:center;box-shadow:var(--shadow)}
+.hero-panel .eyebrow{color:var(--hero-muted)}
+.hero-copy{display:flex;flex-direction:column;gap:20px;min-width:0}
+.hero-copy h1 mark{background:none;color:var(--signal)}
+.hero-copy .lead{color:var(--hero-muted);font-size:1.05rem}
+.hstats{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:14px 28px}
+.hstats li{display:flex;flex-direction:column;gap:2px}
+.hstats b{font-family:var(--font-display);font-size:1.7rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.hstats span{font-size:.8rem;color:var(--hero-muted)}
+.hero-art{min-width:0}
+.hero-art svg{display:block;width:100%;height:auto;max-width:480px;margin-inline:auto}
+.blk{fill:var(--hero-blk)}
+.hpark{fill:var(--hero-park)}
+.pulse{fill:none;stroke:var(--signal);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{from{transform:scale(.75);opacity:.9}to{transform:scale(1.35);opacity:0}}
+.pick{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 22px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr) auto;gap:16px 18px;align-items:end;box-shadow:var(--shadow)}
+.pick h2{font-size:1.3rem}
+.pick .small{margin-top:4px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;counter-reset:s}
+.steps li{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px;counter-increment:s;box-shadow:var(--shadow);transition:transform .15s}
+.steps li:hover{transform:translateY(-2px)}
+.steps li::before{content:counter(s,decimal-leading-zero);font-family:var(--font-display);font-weight:800;font-size:2.1rem;line-height:1;color:var(--accent)}
+.steps b{font-weight:600;font-size:1.02rem}
+.steps span{font-size:.92rem;color:var(--muted)}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0;box-shadow:var(--shadow)}
+.panel ul{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:7px}
+.panel.limits{background:var(--signal-soft);border-color:var(--signal)}
+.foot{background:var(--hero-bg);color:var(--hero-muted);padding-block:34px 44px;font-size:.9rem}
+.foot .wrap{display:flex;flex-direction:column;gap:8px}
+.foot q{font-family:var(--font-display);font-weight:600;font-size:1.25rem;color:var(--hero-ink);quotes:"“" "”";line-height:1.25;max-width:40ch}
+
+/* map */
+.bar{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:.88rem;display:inline-flex;align-items:center;gap:8px;padding:5px 13px 5px 5px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="false"]{opacity:.5}
+.chip small{color:var(--muted);font-variant-numeric:tabular-nums}
+.dotc{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font-size:.62rem;font-weight:700;flex:none}
+.mapgrid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:18px;align-items:start}
+.mapbox{background:var(--map-bg);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+.mapbox svg{display:block;width:100%;height:auto}
+.bairro{fill:var(--b-fill);stroke:var(--b-line);stroke-width:1.5;transition:opacity .2s}
+.bairro.dim{opacity:.45}
+.park{fill:var(--park)}
+.blabel{font-family:var(--font-display);font-size:16px;font-weight:800;fill:var(--muted);paint-order:stroke;stroke:var(--b-fill);stroke-width:5px;stroke-linejoin:round}
+.mini{font-size:10px;fill:var(--muted);font-family:var(--font-body)}
+.pin{cursor:pointer}
+.pin circle{stroke:var(--surface);stroke-width:2;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.35))}
+.pin text{font-size:8.5px;font-weight:700;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none;font-family:var(--font-body)}
+.pin.sel circle{stroke:var(--ink);stroke-width:3}
+.pin:focus-visible{outline:none}
+.pin:focus-visible circle{stroke:var(--ink);stroke-width:3}
+.side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.stat{display:flex;flex-direction:column;gap:4px}
+.stat .n{font-family:var(--font-display);font-size:2.6rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;color:var(--accent)}
+.detail dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.92rem}
+.detail dt{color:var(--muted)}
+.detail dd{margin:0}
+.tag{display:inline-block;font-size:.75rem;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted)}
+details.list{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 18px;box-shadow:var(--shadow)}
+details.list summary{cursor:pointer;font-weight:600}
+.tscroll{overflow-x:auto;margin-top:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem;min-width:420px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+
+/* analysis */
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow)}
+.fact .n{font-family:var(--font-display);font-size:1.9rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1.1}
+.fact span{display:block;font-size:.82rem;color:var(--muted)}
+.rows{display:flex;flex-direction:column;gap:10px}
+.row{display:grid;grid-template-columns:190px minmax(0,1fr) minmax(0,1fr) 190px;gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow)}
+.row .nm{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.row .nm b{font-weight:600;display:inline-flex;align-items:center;gap:9px}
+.meter-lab{display:flex;justify-content:space-between;gap:8px;font-size:.8rem;color:var(--muted);margin-bottom:5px}
+.meter-lab b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.track{position:relative;height:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px}
+.track i{position:absolute;inset:0 auto 0 0;border-radius:5px}
+.track .s{background:var(--accent)}
+.track .d{background:var(--signal)}
+.track u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);text-decoration:none}
+.pill{display:inline-block;font-size:.8rem;font-weight:600;padding:5px 12px;border-radius:999px;text-align:center}
+.pill.high{background:var(--signal);color:var(--signal-ink)}
+.pill.mid{background:var(--signal-soft);color:var(--ink);border:1px solid var(--signal)}
+.pill.none{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.key{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:.85rem;color:var(--muted)}
+.key span{display:inline-flex;align-items:center;gap:7px}
+.key i{width:16px;height:10px;border-radius:3px;display:inline-block}
+.key u{width:2px;height:14px;background:var(--ink);display:inline-block}
+.note{background:var(--surface);border:1px dashed var(--b-line);border-radius:16px;padding:18px 20px;font-size:.92rem;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.note b{color:var(--ink)}
+
+/* report */
+.doc{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,4vw,40px);display:flex;flex-direction:column;gap:24px;max-width:860px;box-shadow:var(--shadow)}
+.doc h3{font-size:1.1rem;margin-bottom:6px}
+.doc section{display:flex;flex-direction:column;gap:8px}
+.doc ul{margin:0;padding-left:1.15rem;display:flex;flex-direction:column;gap:5px}
+.dochead{display:flex;flex-direction:column;gap:8px;padding-bottom:20px;border-bottom:2px solid var(--ink)}
+.dochead h3{font-size:clamp(1.6rem,5vw,2.2rem);font-weight:800;margin:0}
+.opp{border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;background:var(--surface-2)}
+.opp header{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between}
+.opp h4{margin:0;font-family:var(--font-display);font-size:1.15rem;display:inline-flex;align-items:center;gap:9px}
+.opp .sm{font-size:.9rem;color:var(--muted)}
+.small{font-size:.88rem;color:var(--muted)}
+.toast{min-height:1.4em;font-size:.9rem;color:var(--accent);font-weight:600}
+textarea.fallback{width:100%;min-height:140px;font:inherit;font-size:.9rem;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:10px}
+
+@media (max-width:900px){
+  .hero-panel,.mapgrid,.two{grid-template-columns:minmax(0,1fr)}
+  .pick{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .pick .pick-t,.pick .btn{grid-column:1 / -1}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 16px}
+  .row .nm{grid-column:1 / -1;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}
+  .row .st{grid-column:1 / -1}
+}
+@media (max-width:560px){
+  main{padding-block:20px 44px}
+  .steps,.facts,.pick{grid-template-columns:minmax(0,1fr)}
+  .nav a{padding:8px 10px}
+  .hero-panel{border-radius:18px}
+  .row{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#inicio" aria-label="Mapa do Empreendedor, página inicial">
+      <svg width="28" height="28" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2.5c-4.4 0-7.8 3.3-7.8 7.6 0 5.5 7.8 13.4 7.8 13.4s7.8-7.900 7.8-13.400c0-4.300-3.400-7.600-7.800-7.600z" fill="var(--accent)"/><circle cx="13" cy="10.200" r="3" fill="var(--signal)"/></svg>
+      Mapa do Empreendedor
+    </a>
+    <nav class="nav" aria-label="Telas do protótipo">
+      <a href="#inicio" data-r="inicio">Início</a>
+      <a href="#mapa" data-r="mapa">Mapa</a>
+      <a href="#analise" data-r="analise">Análise</a>
+      <a href="#relatorio" data-r="relatorio">Relatório</a>
+    </nav>
+  </div>
+</header>
+<div class="demo"><div class="wrap">Protótipo com dados fictícios da “Cidade Exemplo”. Nenhum número desta página descreve um bairro real.</div></div>
+
+<main class="wrap">
+
+<!-- INÍCIO -->
+<section id="s-inicio" class="screen">
+  <div class="hero-panel">
+    <div class="hero-copy">
+      <span class="eyebrow">Projeto de inovação · Equipe #814</span>
+      <h1>Descubra <mark>o que falta</mark> no bairro antes de abrir o negócio.</h1>
+      <p class="lead">O Mapa do Empreendedor reúne os estabelecimentos de cada bairro e o que os moradores dizem sentir falta. Depois aponta segmentos que merecem uma pesquisa mais séria. Ele não prevê lucro e não garante sucesso.</p>
+      <ul class="hstats" aria-label="Dados do exemplo">
+        <li><b id="st-b">3</b><span>bairros do exemplo</span></li>
+        <li><b id="st-e">49</b><span>estabelecimentos cadastrados</span></li>
+        <li><b id="st-r">136</b><span>respostas de moradores</span></li>
+      </ul>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 440 290">
+        <rect class="blk" x="10" y="10" width="95" height="80" rx="8"/>
+        <rect class="blk" x="115" y="10" width="95" height="80" rx="8"/>
+        <rect class="blk" x="220" y="10" width="95" height="80" rx="8"/>
+        <rect class="blk" x="325" y="10" width="105" height="80" rx="8"/>
+        <rect class="blk" x="10" y="100" width="95" height="80" rx="8"/>
+        <rect class="blk" x="115" y="100" width="95" height="80" rx="8"/>
+        <rect class="hpark" x="220" y="100" width="95" height="80" rx="8"/>
+        <rect class="blk" x="325" y="100" width="105" height="80" rx="8"/>
+        <rect class="blk" x="10" y="190" width="95" height="90" rx="8"/>
+        <rect class="blk" x="115" y="190" width="95" height="90" rx="8"/>
+        <rect class="blk" x="220" y="190" width="95" height="90" rx="8"/>
+        <rect class="blk" x="325" y="190" width="105" height="90" rx="8"/>
+        <rect x="318" y="183" width="119" height="104" rx="12" fill="var(--signal)" fill-opacity=".14" stroke="var(--signal)" stroke-width="2" stroke-dasharray="6 5"/>
+        <circle class="pulse" cx="377" cy="235" r="24"/>
+        <text x="377" y="239" text-anchor="middle" font-size="12" font-weight="700" fill="var(--signal)" font-family="Inter,system-ui,sans-serif">a investigar</text>
+        <g stroke="var(--hero-bg)" stroke-width="2.5">
+          <circle cx="50" cy="48" r="8" fill="#2F6FB5"/><circle cx="160" cy="40" r="8" fill="#B83A4B"/>
+          <circle cx="262" cy="52" r="8" fill="#8F6416"/><circle cx="372" cy="50" r="8" fill="#B2438A"/>
+          <circle cx="48" cy="140" r="8" fill="#4F7A1A"/><circle cx="162" cy="146" r="8" fill="#2F6FB5"/>
+          <circle cx="378" cy="142" r="8" fill="#B83A4B"/><circle cx="58" cy="236" r="8" fill="#8F6416"/>
+          <circle cx="160" cy="232" r="8" fill="#7B4FB0"/><circle cx="268" cy="240" r="8" fill="#B2438A"/>
+          <circle cx="86" cy="70" r="8" fill="#B8531F"/><circle cx="190" cy="70" r="8" fill="#2F6FB5"/>
+          <circle cx="288" cy="220" r="8" fill="#4F7A1A"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="pick">
+    <div class="pick-t"><h2>Escolha a região</h2><p class="small">Comece por um bairro e abra o mapa.</p></div>
+    <label class="fld" for="sel-cidade">Cidade
+      <select id="sel-cidade"><option>Cidade Exemplo (dados fictícios)</option></select>
+    </label>
+    <label class="fld" for="sel-bairro">Bairro
+      <select id="sel-bairro">
+        <option value="A">Bairro A</option>
+        <option value="B">Bairro B</option>
+        <option value="C">Bairro C</option>
+      </select>
+    </label>
+    <button class="btn" id="go-mapa" type="button">Abrir o mapa →</button>
+  </div>
+
+  <div class="head">
+    <span class="eyebrow">Passo a passo</span>
+    <h2>Como funciona</h2>
+  </div>
+  <ol class="steps" style="margin-top:-12px">
+    <li><b>Escolha da região</b><span>Você seleciona a cidade e o bairro que quer estudar.</span></li>
+    <li><b>Reunião de informações</b><span>A plataforma junta dados sobre estabelecimentos, categorias comerciais e características da região.</span></li>
+    <li><b>Pesquisa com moradores</b><span>Questionários mostram quais serviços as pessoas procuram em outros bairros.</span></li>
+    <li><b>Análise dos dados</b><span>O sistema compara a oferta encontrada com as necessidades relatadas.</span></li>
+    <li><b>Recomendações</b><span>Aparecem os segmentos a investigar, os fatores considerados e o que ainda precisa ser confirmado.</span></li>
+    <li><b>Relatório</b><span>Você recebe um resumo com oportunidades potenciais, concorrência, limitações e próximos passos.</span></li>
+  </ol>
+
+  <div class="two">
+    <div class="panel">
+      <h3>Para quem é</h3>
+      <ul>
+        <li>Quem quer abrir o primeiro negócio</li>
+        <li>Microempreendedores individuais</li>
+        <li>Pequenos comerciantes que pensam em expandir ou mudar de região</li>
+        <li>Associações comerciais e projetos de incentivo ao empreendedorismo</li>
+      </ul>
+    </div>
+    <div class="panel limits">
+      <h3>O que a ferramenta não faz</h3>
+      <ul>
+        <li>Não garante sucesso comercial nem prevê lucro.</li>
+        <li>Não substitui estudo de viabilidade, orientação contábil ou planejamento financeiro.</li>
+        <li>Poucos concorrentes podem indicar oportunidade, mas também baixa demanda ou custos altos.</li>
+        <li>Mostra resultados agregados, sem dados pessoais dos moradores.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- MAPA -->
+<section id="s-mapa" class="screen" hidden>
+  <div class="head">
+    <span class="eyebrow">Tela 2 · Mapa comercial</span>
+    <h2>Quem já atende cada bairro</h2>
+    <p class="lead">Cada ponto é um estabelecimento cadastrado. Filtre por bairro e por categoria e toque num ponto para ver os detalhes.</p>
+  </div>
+  <div class="bar">
+    <div class="seg" id="seg-map" role="group" aria-label="Bairro no mapa"></div>
+  </div>
+  <div class="chips" id="chips" role="group" aria-label="Categorias"></div>
+  <div class="mapgrid">
+    <div class="mapbox"><svg id="map" viewBox="0 0 640 420" role="group" aria-label="Mapa ilustrativo da Cidade Exemplo com três bairros e os estabelecimentos cadastrados"></svg></div>
+    <div class="side">
+      <div class="panel stat" aria-live="polite"><span class="eyebrow">No mapa agora</span><span class="n" id="vis-n">0</span><span class="small" id="vis-t"></span></div>
+      <div class="panel detail" id="detail" aria-live="polite"></div>
+    </div>
+  </div>
+  <details class="list"><summary>Ver lista de estabelecimentos</summary>
+    <div class="tscroll"><table><thead><tr><th>Nome</th><th>Categoria</th><th>Bairro</th></tr></thead><tbody id="list-body"></tbody></table></div>
+  </details>
+</section>
+
+<!-- ANÁLISE -->
+<section id="s-analise" class="screen" hidden>
+  <div class="head">
+    <span class="eyebrow">Tela 3 · Análise</span>
+    <h2>Oferta existente x necessidade relatada</h2>
+    <p class="lead">Para cada categoria, o protótipo compara quantos estabelecimentos existem para cada mil moradores com a parcela dos respondentes que sente falta do serviço.</p>
+  </div>
+  <div class="bar"><div class="seg" id="seg-an" role="group" aria-label="Bairro analisado"></div></div>
+  <div class="facts" id="facts"></div>
+  <div class="key" aria-label="Legenda">
+    <span><i style="background:var(--accent)"></i>Oferta: estabelecimentos por mil moradores</span>
+    <span><u></u>Média da cidade para a categoria</span>
+    <span><i style="background:var(--signal)"></i>Moradores que sentem falta (%)</span>
+  </div>
+  <div class="rows" id="rows"></div>
+  <div class="note">
+    <p><b>Como este protótipo decide.</b> Uma categoria entra em “Investigar com prioridade” quando pelo menos 35% dos respondentes sentem falta e a oferta do bairro é menor que 60% da média da cidade. Entra em “Investigar” com pelo menos 30% e oferta abaixo de 85% da média.</p>
+    <p>Esta regra é uma simulação simples sobre dados fictícios. Na versão completa, um modelo de IA ajudaria a classificar estabelecimentos, resumir respostas abertas e explicar cada sugestão, sempre mostrando quais dados a sustentam e avisando quando faltam informações.</p>
+  </div>
+</section>
+
+<!-- RELATÓRIO -->
+<section id="s-relatorio" class="screen" hidden>
+  <div class="head">
+    <span class="eyebrow">Tela 4 · Relatório</span>
+    <h2>Relatório de oportunidades</h2>
+    <p class="lead">Um resumo para levar à pesquisa de campo. Ele lista o que merece investigação e o que ainda precisa ser confirmado.</p>
+  </div>
+  <div class="bar"><div class="seg" id="seg-rel" role="group" aria-label="Bairro do relatório"></div></div>
+  <article class="doc" id="doc"></article>
+  <div style="display:flex;flex-direction:column;gap:10px;max-width:860px">
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+      <button class="btn" id="copy" type="button">Copiar resumo</button>
+      <span class="toast" id="toast" role="status"></span>
+    </div>
+    <div id="fallback" hidden><p class="small">Seu navegador não permitiu copiar sozinho. Selecione o texto abaixo e copie.</p><textarea class="fallback" id="fb-text" readonly></textarea></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <q>Transformando dados em oportunidades e necessidades locais em ideias para empreender.</q>
+    <span>Equipe #814 · Empreendedorismo, tecnologia e desenvolvimento local · Protótipo ilustrativo</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* ---------- dados fictícios ---------- */
+  var CATS=[
+    {id:'mercado',nome:'Mercado',sig:'Me',cor:'#2F6FB5'},
+    {id:'farmacia',nome:'Farmácia',sig:'Fa',cor:'#B83A4B'},
+    {id:'padaria',nome:'Padaria',sig:'Pa',cor:'#8F6416'},
+    {id:'lavanderia',nome:'Lavanderia',sig:'La',cor:'#7B4FB0'},
+    {id:'salao',nome:'Salão de beleza',sig:'Sa',cor:'#B2438A'},
+    {id:'pet',nome:'Pet shop',sig:'Pe',cor:'#4F7A1A'},
+    {id:'academia',nome:'Academia',sig:'Ac',cor:'#B8531F'}
+  ];
+  var CATBY={}; CATS.forEach(function(c){CATBY[c.id]=c;});
+  var BAIRROS={
+    A:{nome:'Bairro A',pop:8200,resp:46,
+       poly:[[20,30],[220,24],[232,196],[222,392],[28,384]],lab:[112,52],
+       need:{mercado:6,farmacia:12,padaria:8,lavanderia:41,salao:15,pet:22,academia:30}},
+    B:{nome:'Bairro B',pop:11500,resp:52,
+       poly:[[244,24],[436,34],[452,190],[244,204]],lab:[340,56],
+       need:{mercado:7,farmacia:20,padaria:9,lavanderia:10,salao:12,pet:35,academia:14}},
+    C:{nome:'Bairro C',pop:5400,resp:38,
+       poly:[[246,218],[456,202],[612,226],[604,390],[236,396]],lab:[430,236],
+       need:{mercado:25,farmacia:38,padaria:30,lavanderia:33,salao:10,pet:18,academia:44}}
+  };
+  var COUNTS={
+    A:{mercado:4,farmacia:3,padaria:4,lavanderia:1,salao:3,pet:1,academia:1},
+    B:{mercado:5,farmacia:4,padaria:5,lavanderia:3,salao:4,pet:1,academia:3},
+    C:{mercado:2,farmacia:1,padaria:1,lavanderia:0,salao:2,pet:1,academia:0}
+  };
+  var NAMES={
+    mercado:['Mercado Boa Compra','Super Esquina','Mercadinho Central','Armazém da Praça','Mercado Vizinho'],
+    farmacia:['Farmácia Vida','Drogaria Central','Farmácia Bem-Estar','Drogaria Esperança'],
+    padaria:['Padaria Pão Quente','Padaria Doce Trigo','Padaria da Esquina','Padaria Sol Nascente','Padaria Família'],
+    lavanderia:['Lavanderia Limpa Já','Lavanderia Azul','Lava & Seca Express'],
+    salao:['Salão Estilo','Studio Beleza','Salão da Rua Nova','Espaço Cabelo & Cia'],
+    pet:['Pet Amigo','Casa do Bicho'],
+    academia:['Academia Movimento','Fit Bairro','Academia Corpo Ativo']
+  };
+  var KEYS=['A','B','C'];
+
+  /* ---------- geração determinística dos pontos ---------- */
+  function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function inPoly(x,y,p){var c=false;for(var i=0,j=p.length-1;i<p.length;j=i++){var xi=p[i][0],yi=p[i][1],xj=p[j][0],yj=p[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
+  function roomy(x,y,p,m){return inPoly(x,y,p)&&inPoly(x+m,y,p)&&inPoly(x-m,y,p)&&inPoly(x,y+m,p)&&inPoly(x,y-m,p);}
+  var PINS=[];
+  var nameIdx={};
+  KEYS.forEach(function(k,bi){
+    var B=BAIRROS[k],rand=rng(814+bi*97),placed=[];
+    var xs=B.poly.map(function(q){return q[0];}),ys=B.poly.map(function(q){return q[1];});
+    var x0=Math.min.apply(null,xs),x1=Math.max.apply(null,xs),y0=Math.min.apply(null,ys),y1=Math.max.apply(null,ys);
+    CATS.forEach(function(c){
+      for(var n=0;n<COUNTS[k][c.id];n++){
+        var gap=26,pt=null;
+        for(var tries=0;tries<9000&&!pt;tries++){
+          if(tries===3000)gap=20; if(tries===6000)gap=16;
+          var x=x0+rand()*(x1-x0),y=y0+rand()*(y1-y0);
+          if(!roomy(x,y,B.poly,14))continue;
+          if(Math.abs(x-B.lab[0])<46&&Math.abs(y-B.lab[1])<18)continue;
+          var ok=true;
+          for(var q=0;q<placed.length;q++){var dx=placed[q][0]-x,dy=placed[q][1]-y;if(dx*dx+dy*dy<gap*gap){ok=false;break;}}
+          if(ok)pt=[x,y];
+        }
+        if(!pt)pt=[B.lab[0],B.lab[1]+40+n*10];
+        placed.push(pt);
+        var list=NAMES[c.id],i=nameIdx[c.id]||0;nameIdx[c.id]=i+1;
+        var nome=list[i%list.length]+(i>=list.length?' II':'');
+        PINS.push({id:k+'-'+c.id+'-'+n,nome:nome,cat:c.id,b:k,x:Math.round(pt[0]*10)/10,y:Math.round(pt[1]*10)/10});
+      }
+    });
+  });
+
+  /* ---------- cálculos ---------- */
+  var POPT=KEYS.reduce(function(s,k){return s+BAIRROS[k].pop;},0);
+  var CITY={},GMAX=0;
+  CATS.forEach(function(c){
+    var t=KEYS.reduce(function(s,k){return s+COUNTS[k][c.id];},0);
+    CITY[c.id]=t/(POPT/1000);
+    KEYS.forEach(function(k){GMAX=Math.max(GMAX,COUNTS[k][c.id]/(BAIRROS[k].pop/1000));});
+  });
+  GMAX=Math.max(GMAX,CITY.mercado)*1.1;
+  var RANK={high:0,mid:1,none:2};
+  function analyze(k){
+    var B=BAIRROS[k];
+    return CATS.map(function(c){
+      var n=COUNTS[k][c.id],dens=n/(B.pop/1000),ratio=dens/CITY[c.id],need=B.need[c.id],nivel='none';
+      if(need>=35&&ratio<0.6)nivel='high';else if(need>=30&&ratio<0.85)nivel='mid';
+      return {cat:c,n:n,dens:dens,ratio:ratio,need:need,nivel:nivel};
+    }).sort(function(a,b){return RANK[a.nivel]-RANK[b.nivel]||b.need-a.need;});
+  }
+  var PILL={high:'Investigar com prioridade',mid:'Investigar',none:'Sem sinal de lacuna'};
+  function f2(v){return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function f0(v){return v.toLocaleString('pt-BR',{maximumFractionDigits:0});}
+  function dotc(c){return '<span class="dotc" style="background:'+c.cor+'" aria-hidden="true">'+c.sig+'</span>';}
+
+  /* ---------- estado ---------- */
+  var state={bairro:'A',mapView:'A',cats:{},sel:null};
+  CATS.forEach(function(c){state.cats[c.id]=true;});
+  function $(id){return document.getElementById(id);}
+
+  $('st-b').textContent=KEYS.length;
+  $('st-e').textContent=PINS.length;
+  $('st-r').textContent=KEYS.reduce(function(s,k){return s+BAIRROS[k].resp;},0);
+
+  function segment(el,withAll,onPick,current){
+    var opts=(withAll?[['todos','Todos']]:[]).concat(KEYS.map(function(k){return [k,BAIRROS[k].nome];}));
+    el.innerHTML=opts.map(function(o){return '<button type="button" data-v="'+o[0]+'" aria-pressed="'+(current===o[0])+'">'+o[1]+'</button>';}).join('');
+    el.onclick=function(e){var b=e.target.closest('button');if(b)onPick(b.getAttribute('data-v'));};
+  }
+
+  /* ---------- mapa ---------- */
+  function visiblePins(){
+    return PINS.filter(function(p){return state.cats[p.cat]&&(state.mapView==='todos'||p.b===state.mapView);});
+  }
+  function renderMap(){
+    segment($('seg-map'),true,function(v){state.mapView=v;if(v!=='todos')state.bairro=v;state.sel=null;renderMap();},state.mapView);
+    $('chips').innerHTML=CATS.map(function(c){
+      var n=PINS.filter(function(p){return p.cat===c.id&&(state.mapView==='todos'||p.b===state.mapView);}).length;
+      return '<button type="button" class="chip" data-c="'+c.id+'" aria-pressed="'+state.cats[c.id]+'">'+dotc(c)+c.nome+' <small>'+n+'</small></button>';
+    }).join('');
+    $('chips').onclick=function(e){var b=e.target.closest('button');if(!b)return;var id=b.getAttribute('data-c');state.cats[id]=!state.cats[id];renderMap();};
+    var vis=visiblePins(),s='';
+    var clip='<defs><clipPath id="clipb">'+KEYS.map(function(k){return '<polygon points="'+BAIRROS[k].poly.map(function(q){return q.join(',');}).join(' ')+'"/>';}).join('')+'</clipPath></defs>';
+    s+=clip;
+    s+='<rect width="640" height="420" fill="var(--map-bg)"/>';
+    s+='<polygon class="park" points="448,40 610,46 618,190 466,196"/>';
+    s+='<text class="mini" x="540" y="122" text-anchor="middle" font-style="italic">Parque · sem dados</text>';
+    KEYS.forEach(function(k){
+      var B=BAIRROS[k],dim=state.mapView!=='todos'&&state.mapView!==k;
+      s+='<polygon class="bairro'+(dim?' dim':'')+'" points="'+B.poly.map(function(q){return q.join(',');}).join(' ')+'"/>';
+    });
+    // ruas e avenidas, recortadas pelos bairros
+    var st='<g clip-path="url(#clipb)"><g transform="rotate(-6 320 210)" stroke="var(--street)" stroke-width="1.3">',x,y;
+    for(x=-40;x<700;x+=38)st+='<line x1="'+x+'" y1="-60" x2="'+x+'" y2="480"/>';
+    for(y=-60;y<480;y+=34)st+='<line x1="-40" y1="'+y+'" x2="700" y2="'+y+'"/>';
+    st+='<g stroke="var(--street-main)" stroke-width="5" stroke-linecap="round"><line x1="120" y1="-60" x2="120" y2="480"/><line x1="346" y1="-60" x2="346" y2="480"/><line x1="-40" y1="214" x2="700" y2="214"/></g></g></g>';
+    s+=st;
+    KEYS.forEach(function(k){
+      var B=BAIRROS[k];
+      s+='<text class="blabel" x="'+B.lab[0]+'" y="'+B.lab[1]+'" text-anchor="middle">'+B.nome+'</text>';
+    });
+    vis.forEach(function(p){
+      var c=CATBY[p.cat];
+      s+='<g class="pin'+(state.sel===p.id?' sel':'')+'" tabindex="0" role="button" data-id="'+p.id+'" aria-label="'+p.nome+', '+c.nome+', '+BAIRROS[p.b].nome+'"><circle cx="'+p.x+'" cy="'+p.y+'" r="10" fill="'+c.cor+'"/><text x="'+p.x+'" y="'+p.y+'">'+c.sig+'</text></g>';
+    });
+    s+='<g transform="translate(594,392)"><path d="M0 -14 L5 0 L0 -3 L-5 0 Z" fill="var(--muted)"/><text class="mini" x="0" y="12" text-anchor="middle">N</text></g>';
+    s+='<g transform="translate(24,408)"><line x1="0" y1="0" x2="60" y2="0" stroke="var(--muted)" stroke-width="2"/><line x1="0" y1="-4" x2="0" y2="4" stroke="var(--muted)" stroke-width="2"/><line x1="60" y1="-4" x2="60" y2="4" stroke="var(--muted)" stroke-width="2"/><text class="mini" x="68" y="3">escala ilustrativa</text></g>';
+    $('map').innerHTML=s;
+    $('vis-n').textContent=vis.length;
+    $('vis-t').textContent=vis.length===1?'estabelecimento visível com os filtros atuais':'estabelecimentos visíveis com os filtros atuais';
+    $('list-body').innerHTML=vis.map(function(p){return '<tr><td>'+p.nome+'</td><td>'+CATBY[p.cat].nome+'</td><td>'+BAIRROS[p.b].nome+'</td></tr>';}).join('')||'<tr><td colspan="3">Nenhum estabelecimento com estes filtros.</td></tr>';
+    renderDetail();
+  }
+  function renderDetail(){
+    var p=PINS.filter(function(x){return x.id===state.sel;})[0];
+    if(!p){
+      $('detail').innerHTML='<span class="eyebrow">Detalhes</span><p class="small">Toque num ponto do mapa para ver o estabelecimento. Pontos sobrepostos podem ser conferidos na lista abaixo do mapa.</p>';
+      return;
+    }
+    var c=CATBY[p.cat];
+    $('detail').innerHTML='<span class="eyebrow">Estabelecimento selecionado</span><h3>'+p.nome+'</h3><dl><dt>Categoria</dt><dd>'+c.nome+'</dd><dt>Bairro</dt><dd>'+BAIRROS[p.b].nome+'</dd><dt>Origem</dt><dd><span class="tag">Cadastro fictício</span></dd></dl><p class="small">Na versão real, cada ponto traria a fonte e a data da última conferência.</p>';
+  }
+  function pick(id){
+    state.sel=id;
+    var pins=$('map').querySelectorAll('.pin');
+    for(var i=0;i<pins.length;i++){pins[i].classList.toggle('sel',pins[i].getAttribute('data-id')===id);}
+    renderDetail();
+  }
+  $('map').addEventListener('click',function(e){var g=e.target.closest('.pin');if(g)pick(g.getAttribute('data-id'));});
+  $('map').addEventListener('keydown',function(e){var g=e.target.closest&&e.target.closest('.pin');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();pick(g.getAttribute('data-id'));}});
+
+  /* ---------- análise ---------- */
+  function setBairro(k){state.bairro=k;state.mapView=k;renderAnalysis();renderReport();}
+  function renderAnalysis(){
+    var k=state.bairro,B=BAIRROS[k],res=analyze(k);
+    segment($('seg-an'),false,setBairro,k);
+    var total=Object.keys(COUNTS[k]).reduce(function(s,c){return s+COUNTS[k][c];},0);
+    $('facts').innerHTML=
+      '<div class="fact"><div class="n">'+f0(B.pop)+'</div><span>moradores (estimativa fictícia)</span></div>'+
+      '<div class="fact"><div class="n">'+total+'</div><span>estabelecimentos cadastrados</span></div>'+
+      '<div class="fact"><div class="n">'+B.resp+'</div><span>respostas no questionário'+(B.resp<40?' (amostra pequena)':'')+'</span></div>';
+    $('rows').innerHTML=res.map(function(r){
+      var sw=Math.min(100,r.dens/GMAX*100),aw=Math.min(100,CITY[r.cat.id]/GMAX*100),nw=Math.min(100,r.need/50*100);
+      return '<div class="row">'+
+        '<div class="nm"><b>'+dotc(r.cat)+r.cat.nome+'</b><button type="button" class="link-btn" data-see="'+r.cat.id+'">Ver no mapa</button></div>'+
+        '<div><div class="meter-lab"><span>Oferta</span><b>'+f2(r.dens)+' por mil hab. · '+r.n+(r.n===1?' local':' locais')+'</b></div><div class="track" role="img" aria-label="Oferta de '+r.cat.nome+': '+f2(r.dens)+' por mil habitantes; média da cidade '+f2(CITY[r.cat.id])+'"><i class="s" style="width:'+sw+'%"></i><u style="left:'+aw+'%"></u></div></div>'+
+        '<div><div class="meter-lab"><span>Sentem falta</span><b>'+r.need+'%</b></div><div class="track" role="img" aria-label="'+r.need+'% dos respondentes sentem falta de '+r.cat.nome+'"><i class="d" style="width:'+nw+'%"></i></div></div>'+
+        '<div class="st"><span class="pill '+r.nivel+'">'+PILL[r.nivel]+'</span></div>'+
+      '</div>';
+    }).join('');
+  }
+  $('rows').addEventListener('click',function(e){
+    var b=e.target.closest('[data-see]');if(!b)return;
+    var id=b.getAttribute('data-see');
+    CATS.forEach(function(c){state.cats[c.id]=(c.id===id);});
+    state.mapView=state.bairro;state.sel=null;
+    location.hash='#mapa';
+  });
+
+  /* ---------- relatório ---------- */
+  var LIMITS=[
+    'Os dados são fictícios e servem só para demonstrar o funcionamento.',
+    'Dados desatualizados ou incompletos podem gerar resultados equivocados, e nem todo estabelecimento está no cadastro.',
+    'As respostas dos moradores podem não representar toda a população do bairro.',
+    'Poucos concorrentes podem significar oportunidade, mas também baixa demanda, custos elevados ou outras barreiras.',
+    'Este relatório não substitui estudo de viabilidade, orientação contábil ou planejamento financeiro.'
+  ];
+  var STEPS=[
+    'Visitar o bairro e conferir se os estabelecimentos do cadastro ainda existem e se há outros que faltam.',
+    'Ampliar o questionário com mais moradores e incluir perguntas sobre preço e frequência de uso.',
+    'Entrevistar comerciantes da região sobre custos, movimento e dificuldades.',
+    'Estimar custos de abertura e de manutenção com apoio de um contador ou de um serviço de apoio a pequenos negócios.'
+  ];
+  function reportData(k){
+    var B=BAIRROS[k],res=analyze(k),flag=res.filter(function(r){return r.nivel!=='none';});
+    var total=Object.keys(COUNTS[k]).reduce(function(s,c){return s+COUNTS[k][c];},0);
+    flag.forEach(function(r){
+      r.local=PINS.filter(function(p){return p.b===k&&p.cat===r.cat.id;}).map(function(p){return p.nome;});
+      r.outros=PINS.filter(function(p){return p.b!==k&&p.cat===r.cat.id;}).length;
+      r.why='O bairro tem '+r.n+(r.n===1?' estabelecimento cadastrado':' estabelecimentos cadastrados')+' ('+f2(r.dens)+' por mil moradores, '+f0(r.ratio*100)+'% da média da cidade, que é '+f2(CITY[r.cat.id])+'). '+r.need+'% dos '+B.resp+' respondentes dizem sentir falta do serviço.';
+    });
+    return {B:B,flag:flag,total:total};
+  }
+  function renderReport(){
+    var k=state.bairro,d=reportData(k),B=d.B,hoje=new Date().toLocaleDateString('pt-BR');
+    segment($('seg-rel'),false,setBairro,k);
+    var resumo=d.flag.length
+      ?'No '+B.nome+', '+d.flag.length+(d.flag.length===1?' segmento merece':' segmentos merecem')+' investigação: '+d.flag.map(function(r){return r.cat.nome.toLowerCase();}).join(', ')+'. Isso indica onde pesquisar primeiro e não prova que haja demanda suficiente.'
+      :'No '+B.nome+', nenhuma categoria mostrou, ao mesmo tempo, oferta baixa e falta relatada alta. Isso não quer dizer que não existam oportunidades, só que estes dados não apontam uma.';
+    var opp=d.flag.map(function(r){
+      var conc=r.local.length?('No bairro: '+r.local.join(', ')+'.'):'Nenhum estabelecimento da categoria cadastrado no bairro.';
+      conc+=' Em outros bairros: '+r.outros+'.';
+      var conf=['Se a falta relatada se traduz em compra (pergunte quanto pagariam e com que frequência).','Se a baixa oferta não vem de custo alto, aluguel caro ou falta de ponto adequado.'];
+      if(B.resp<40)conf.unshift('A amostra é pequena ('+B.resp+' respostas); ouça mais moradores antes de concluir.');
+      return '<div class="opp"><header><h4>'+dotc(r.cat)+r.cat.nome+'</h4><span class="pill '+r.nivel+'">'+PILL[r.nivel]+'</span></header>'+
+        '<p>'+r.why+'</p><p class="sm"><b>Concorrência identificada.</b> '+conc+'</p>'+
+        '<div class="sm"><b>Confirmar antes de decidir</b><ul>'+conf.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul></div></div>';
+    }).join('');
+    $('doc').innerHTML=
+      '<div class="dochead"><span class="eyebrow">Cidade Exemplo · dados fictícios · gerado em '+hoje+'</span><h3>Relatório: '+B.nome+'</h3></div>'+
+      '<section><h3>Resumo</h3><p>'+resumo+'</p><p class="small">'+f0(B.pop)+' moradores (estimativa), '+d.total+' estabelecimentos cadastrados, '+B.resp+' respostas no questionário.</p></section>'+
+      '<section><h3>Oportunidades potenciais</h3>'+(opp||'<p class="small">Nenhum segmento com sinal claro neste conjunto de dados.</p>')+'</section>'+
+      '<section><h3>Limitações</h3><ul>'+LIMITS.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul></section>'+
+      '<section><h3>Próximos passos de pesquisa</h3><ul>'+STEPS.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul></section>';
+    $('toast').textContent='';$('fallback').hidden=true;
+  }
+  function plainReport(){
+    var k=state.bairro,d=reportData(k),B=d.B,L=[];
+    L.push('RELATÓRIO: '+B.nome.toUpperCase()+' (Cidade Exemplo, dados fictícios)');
+    L.push('');
+    L.push(f0(B.pop)+' moradores (estimativa), '+d.total+' estabelecimentos cadastrados, '+B.resp+' respostas.');
+    L.push('');
+    L.push('OPORTUNIDADES POTENCIAIS A INVESTIGAR');
+    if(!d.flag.length)L.push('Nenhum segmento com sinal claro neste conjunto de dados.');
+    d.flag.forEach(function(r){L.push('- '+r.cat.nome+' ['+PILL[r.nivel]+']: '+r.why);});
+    L.push('');
+    L.push('LIMITAÇÕES');
+    LIMITS.forEach(function(t){L.push('- '+t);});
+    L.push('');
+    L.push('PRÓXIMOS PASSOS');
+    STEPS.forEach(function(t){L.push('- '+t);});
+    return L.join('\n');
+  }
+  $('copy').addEventListener('click',function(){
+    var txt=plainReport();
+    function fallback(){var fb=$('fallback');fb.hidden=false;var ta=$('fb-text');ta.value=txt;ta.focus();ta.select();$('toast').textContent='';}
+    try{
+      navigator.clipboard.writeText(txt).then(function(){$('toast').textContent='Resumo copiado.';$('fallback').hidden=true;},fallback);
+    }catch(err){fallback();}
+  });
+
+  /* ---------- início ---------- */
+  $('sel-bairro').addEventListener('change',function(){state.bairro=this.value;state.mapView=this.value;});
+  $('go-mapa').addEventListener('click',function(){
+    state.bairro=$('sel-bairro').value;state.mapView=state.bairro;state.sel=null;
+    CATS.forEach(function(c){state.cats[c.id]=true;});
+    location.hash='#mapa';
+  });
+
+  /* ---------- rotas ---------- */
+  var ROUTES=['inicio','mapa','analise','relatorio'];
+  function route(){
+    var h=location.hash.replace('#','');if(ROUTES.indexOf(h)<0)h='inicio';
+    ROUTES.forEach(function(r){$('s-'+r).hidden=(r!==h);});
+    var links=document.querySelectorAll('.nav a');
+    for(var i=0;i<links.length;i++){if(links[i].getAttribute('data-r')===h)links[i].setAttribute('aria-current','page');else links[i].removeAttribute('aria-current');}
+    $('sel-bairro').value=state.bairro;
+    if(h==='mapa')renderMap();
+    if(h==='analise')renderAnalysis();
+    if(h==='relatorio')renderReport();
+    window.scrollTo(0,0);
+  }
+  window.addEventListener('hashchange',route);
+  route();
+})();
+</script>
+
+</body>
+</html>
